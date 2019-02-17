@@ -102,6 +102,11 @@ Improvements to clang-tidy
   :doc:`objc-property-declaration <clang-tidy/checks/objc-property-declaration>`
   check have been removed.
 
+- New :doc:`misc-const-vars
+  <clang-tidy/checks/misc-const-vars>` check.
+
+  FIXME: add release notes.
+
 Improvements to include-fixer
 -----------------------------
 
