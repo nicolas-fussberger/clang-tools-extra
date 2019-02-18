@@ -18,10 +18,15 @@ namespace tidy {
 namespace misc {
 
 void ConstVarsCheck::registerMatchers(MatchFinder *Finder) {
+  const std::string varName = "x";
+  const auto refersToVar = ignoringParenImpCasts(
+      declRefExpr(to(varDecl(equalsBoundNode(varName)))));
   Finder->addMatcher(
-      functionDecl(
-          forEachDescendant(
-              varDecl(hasType(qualType(unless(isConstQualified())))).bind("x")))
+      functionDecl(allOf(forEachDescendant(
+                       varDecl(hasType(qualType(unless(isConstQualified()))))
+                           .bind(varName)), forEachDescendant(
+                       binaryOperator(hasOperatorName("="),
+                                      hasLHS(refersToVar)))))
           .bind("func"),
       this);
 }
@@ -37,8 +42,8 @@ void ConstVarsCheck::check(const MatchFinder::MatchResult &Result) {
   auto it = AllDeclRefExprs.begin();
   while (it != AllDeclRefExprs.end()) {
     const auto *declPtr = *it;
-    diag(declPtr->getBeginLoc(), "var ref at %0")
-        << declPtr->getDeclName();
+//    diag(declPtr->getBeginLoc(), "var ref at %0")
+//        << declPtr->getDecl();
     ++it;
   }
 //
@@ -47,11 +52,11 @@ void ConstVarsCheck::check(const MatchFinder::MatchResult &Result) {
 
   // Check if variable is used as a non-const parameter in a function call
 
-  diag(FuncDecl->getLocation(), "func %0 contains non-const vars")
-      << FuncDecl;
-  diag(Var->getLocation(), "var %0 is insufficiently awesome")
+//  diag(FuncDecl->getLocation(), "func %0 contains non-const vars")
+//      << FuncDecl;
+  diag(Var->getLocation(), "Var %0 should be const")
       << Var
-      << FixItHint::CreateInsertion(Var->getLocation(), "awesome_");
+      << FixItHint::CreateInsertion(Var->getBeginLoc(), "const");
 }
 
 } // namespace misc

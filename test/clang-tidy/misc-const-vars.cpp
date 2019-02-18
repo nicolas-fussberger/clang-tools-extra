@@ -1,9 +1,13 @@
 // RUN: %check_clang_tidy %s misc-const-vars %t
 
 // FIXME: Add something that triggers the check here.
-void f();
-// CHECK-MESSAGES: :[[@LINE-1]]:6: warning: function 'f' is insufficiently awesome [misc-const-vars]
+int f() {
+  int number = 10;
+  return number * 10;
 
+}
+
+// CHECK-MESSAGES: :[[@LINE-3]]:3: warning: Var 'number' should be const [misc-const-vars]
 // FIXME: Verify the applied fix.
 //   * Make the CHECK patterns specific enough and try to make verified lines
 //     unique to avoid incorrect matches.
