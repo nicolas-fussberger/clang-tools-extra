@@ -19,33 +19,30 @@ namespace misc {
 
 void ConstVarsCheck::registerMatchers(MatchFinder *Finder) {
   const std::string varName = "x";
-  const auto refersToVar = ignoringParenImpCasts(
-      declRefExpr(to(varDecl(equalsBoundNode(varName)))));
+  const auto refersToVar =
+      ignoringParenImpCasts(declRefExpr(to(varDecl(equalsBoundNode(varName)))));
   Finder->addMatcher(
-      functionDecl(allOf(forEachDescendant(
-                       varDecl(hasType(qualType(unless(isConstQualified()))))
-                           .bind(varName)), forEachDescendant(
-                       binaryOperator(hasOperatorName("="),
-                                      hasLHS(refersToVar)))))
-          .bind("func"),
+      functionDecl(hasDescendant(
+          varDecl(hasType(qualType(unless(isConstQualified())))).bind(varName)),
+          unless(hasDescendant(
+              binaryOperator(hasOperatorName("="), hasLHS(refersToVar))))),
       this);
 }
 
 void ConstVarsCheck::check(const MatchFinder::MatchResult &Result) {
   // FIXME: Add callback implementation.
   const auto *Var = Result.Nodes.getNodeAs<VarDecl>("x");
-  const auto *FuncDecl = Result.Nodes.getNodeAs<FunctionDecl>("func");
+//  const auto *FuncDecl = Result.Nodes.getNodeAs<FunctionDecl>("func");
 
 
-  auto AllDeclRefExprs = utils::decl_ref_expr::allDeclRefExprs(
-        *Var, *FuncDecl, *Result.Context);
-  auto it = AllDeclRefExprs.begin();
-  while (it != AllDeclRefExprs.end()) {
-    const auto *declPtr = *it;
-//    diag(declPtr->getBeginLoc(), "var ref at %0")
-//        << declPtr->getDecl();
-    ++it;
-  }
+//  auto AllDeclRefExprs = utils::decl_ref_expr::allDeclRefExprs(
+//        *Var, *FuncDecl, *Result.Context);
+//  auto it = AllDeclRefExprs.begin();
+//  while (it != AllDeclRefExprs.end()) {
+////    diag(declPtr->getBeginLoc(), "var ref at %0")
+////        << declPtr->getDecl();
+//    ++it;
+//  }
 //
 
   // Check if variable is reassigned within its scope
@@ -54,7 +51,8 @@ void ConstVarsCheck::check(const MatchFinder::MatchResult &Result) {
 
 //  diag(FuncDecl->getLocation(), "func %0 contains non-const vars")
 //      << FuncDecl;
-  diag(Var->getLocation(), "Var %0 should be const")
+  SourceRange range(Var->getSourceRange());
+  diag(range.getBegin(), "Var should be const")
       << Var
       << FixItHint::CreateInsertion(Var->getBeginLoc(), "const");
 }
