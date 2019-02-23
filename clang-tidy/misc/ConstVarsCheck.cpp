@@ -30,11 +30,9 @@ void ConstVarsCheck::registerMatchers(MatchFinder *Finder) {
 }
 
 void ConstVarsCheck::check(const MatchFinder::MatchResult &Result) {
-  // FIXME: Add callback implementation.
   const auto *Var = Result.Nodes.getNodeAs<VarDecl>("x");
-//  const auto *FuncDecl = Result.Nodes.getNodeAs<FunctionDecl>("func");
 
-
+// Hot to get all references for a variabel:
 //  auto AllDeclRefExprs = utils::decl_ref_expr::allDeclRefExprs(
 //        *Var, *FuncDecl, *Result.Context);
 //  auto it = AllDeclRefExprs.begin();
@@ -45,12 +43,6 @@ void ConstVarsCheck::check(const MatchFinder::MatchResult &Result) {
 //  }
 //
 
-  // Check if variable is reassigned within its scope
-
-  // Check if variable is used as a non-const parameter in a function call
-
-//  diag(FuncDecl->getLocation(), "func %0 contains non-const vars")
-//      << FuncDecl;
   SourceRange range(Var->getSourceRange());
   diag(range.getBegin(), "Var should be const")
       << Var
