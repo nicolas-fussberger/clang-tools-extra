@@ -54,7 +54,7 @@ void ConstVarsCheck::check(const MatchFinder::MatchResult &Result) {
   SourceRange range(Var->getSourceRange());
   diag(range.getBegin(), "Var should be const")
       << Var
-      << FixItHint::CreateInsertion(Var->getBeginLoc(), "const");
+      << FixItHint::CreateInsertion(Var->getBeginLoc(), "const ");
 }
 
 } // namespace misc
